@@ -88,12 +88,12 @@
         // Požiadavka 04
         echo "<h1>požiadavka 04</h1>";
 
-        $sql = "SELECT COUNT(*) as count FROM orders WHERE YEAR(OrderDate) = 1997";
+        $sql = "SELECT COUNT(*) as count FROM orders WHERE YEAR(OrderDate) = 1995";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            echo '<div class="table-container"><h2>Počet objednávok v roku 1997</h2><p>' . $row["count"] . '</p></div>';
+            echo '<div class="table-container"><h2>Počet objednávok v roku 1995</h2><p>' . $row["count"] . '</p></div>';
         } else {
             echo "0 results";
         }
@@ -116,9 +116,9 @@
 
         // Požiadavka 06
         echo "<h1>požiadavka 06</h1>";
-        echo '<div class="table-container"><h2>Objednávky zadané 19. mája 1997</h2><table><thead><tr><th>OrderID</th><th>CustomerID</th><th>OrderDate</th></tr></thead><tbody>';
+        echo '<div class="table-container"><h2>Objednávky zadané 28. septembra 1995</h2><table><thead><tr><th>OrderID</th><th>CustomerID</th><th>OrderDate</th></tr></thead><tbody>';
 
-        $sql = "SELECT * FROM orders WHERE OrderDate = '1997-05-19'";
+        $sql = "SELECT * FROM orders WHERE OrderDate = '1995-09-28'";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {

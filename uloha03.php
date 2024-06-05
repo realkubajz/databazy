@@ -42,18 +42,22 @@
             echo '</div>';
         }
 
+        // Požiadavka 01
         echo "<h1>požiadavka 01</h1>";
-        $sql = "SELECT SUM(UnitPrice * Quantity) AS TotalRevenueFrom1997 FROM `order details` od 
+        $sql = "SELECT SUM(od.UnitPrice * od.Quantity) AS TotalRevenue FROM `order details` od 
                 JOIN orders o ON od.OrderID = o.OrderID 
-                WHERE YEAR(o.OrderDate) = 1997";
-        execute_query($conn, $sql, "Celkové príjmy v roku 1997: ");
+                WHERE YEAR(o.OrderDate) = 1994";
+        execute_query($conn, $sql, "Celkové príjmy v roku 1994");
 
+        // Požiadavka 02
         echo "<h1>požiadavka 02</h1>";
-        $sql = "SELECT CustomerID, SUM(UnitPrice * Quantity) AS TotalPaid FROM `order details` od 
+        $sql = "SELECT c.CustomerID, c.CompanyName, SUM(od.UnitPrice * od.Quantity) AS TotalPaid FROM `order details` od 
                 JOIN orders o ON od.OrderID = o.OrderID 
-                GROUP BY CustomerID";
+                JOIN customers c ON o.CustomerID = c.CustomerID 
+                GROUP BY c.CustomerID";
         execute_query($conn, $sql, "Celková suma, ktorú nám doteraz každý zákazník zaplatil");
 
+        // Požiadavka 03
         echo "<h1>požiadavka 03</h1>";
         $sql = "SELECT p.ProductName, SUM(od.Quantity) AS TotalSold FROM `order details` od 
                 JOIN products p ON od.ProductID = p.ProductID 
@@ -62,6 +66,7 @@
                 LIMIT 10";
         execute_query($conn, $sql, "10 najpredávanejších produktov");
 
+        // Požiadavka 04
         echo "<h1>požiadavka 04</h1>";
         $sql = "SELECT c.CustomerID, c.CompanyName, SUM(od.UnitPrice * od.Quantity) AS TotalRevenue FROM `order details` od 
                 JOIN orders o ON od.OrderID = o.OrderID 
@@ -69,32 +74,35 @@
                 GROUP BY c.CustomerID";
         execute_query($conn, $sql, "Celkové výnosy na zákazníka");
 
+        // Požiadavka 05
         echo "<h1>požiadavka 05</h1>";
         $sql = "SELECT c.CustomerID, c.CompanyName, SUM(od.UnitPrice * od.Quantity) AS TotalPaid FROM `order details` od 
                 JOIN orders o ON od.OrderID = o.OrderID 
                 JOIN customers c ON o.CustomerID = c.CustomerID 
                 WHERE c.Country = 'UK' 
                 GROUP BY c.CustomerID 
-                HAVING TotalPaid > 1000 
-                LIMIT 6";
+                HAVING TotalPaid > 1000";
         execute_query($conn, $sql, "Zákazníci zo Spojeného kráľovstva, ktorí zaplatili viac ako 1 000 dolárov");
 
+        // Požiadavka 06
         echo "<h1>požiadavka 06</h1>";
         $sql = "SELECT c.CustomerID, c.CompanyName, c.Country, 
                 SUM(od.UnitPrice * od.Quantity) AS TotalPaid, 
-                SUM(CASE WHEN YEAR(o.OrderDate) = 1997 THEN od.UnitPrice * od.Quantity ELSE 0 END) AS Paid1997 
+                SUM(CASE WHEN YEAR(o.OrderDate) = 1995 THEN od.UnitPrice * od.Quantity ELSE 0 END) AS Paid1995 
                 FROM `order details` od 
                 JOIN orders o ON od.OrderID = o.OrderID 
                 JOIN customers c ON o.CustomerID = c.CustomerID 
                 GROUP BY c.CustomerID";
-        execute_query($conn, $sql, "Celkové a ročné platby zákazníkov (rok 1997)");
+        execute_query($conn, $sql, "Celkové a ročné platby zákazníkov (rok 1995)");
 
+        // Požiadavka 07
         echo "<h1>požiadavka 07</h1>";
-        $sql = "SELECT COUNT(DISTINCT CustomerID) AS TotalCustomers FROM orders";
+        $sql = "SELECT COUNT(DISTINCT o.CustomerID) AS TotalCustomers FROM orders o";
         execute_query($conn, $sql, "Celkový počet zákazníkov zo všetkých objednávok");
 
+        // Požiadavka 08
         echo "<h1>požiadavka 08</h1>";
-        $sql = "SELECT COUNT(DISTINCT CustomerID) AS TotalCustomers1997 FROM orders WHERE YEAR(OrderDate) = 1997";
+        $sql = "SELECT COUNT(DISTINCT o.CustomerID) AS TotalCustomers1997 FROM orders o WHERE YEAR(o.OrderDate) = 1997";
         execute_query($conn, $sql, "Celkový počet zákazníkov z objednávok v roku 1997");
 
         mysqli_close($conn);
