@@ -99,20 +99,21 @@
         }
 
         // Požiadavka 05
-        echo "<h1>požiadavka 05</h1>";
-        echo '<div class="table-container"><h2>Kontaktné osoby - manažéri</h2><table><thead><tr><th>ContactName</th></tr></thead><tbody>';
+echo "<h1>požiadavka 05</h1>";
+echo '<div class="table-container"><h2>Kontaktné osoby - manažéri</h2><table><thead><tr><th>ContactName</th></tr></thead><tbody>';
 
-        $sql = "SELECT ContactName FROM customers WHERE ContactTitle LIKE '%Manager%' ORDER BY ContactName";
-        $result = $conn->query($sql);
+$sql = "SELECT ContactName FROM customers WHERE ContactTitle LIKE '%Manager%' ORDER BY ContactName";
+$result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . $row["ContactName"]. "</td></tr>";
-            }
-        } else {
-            echo "<tr><td>0 results</td></tr>";
-        }
-        echo '</tbody></table></div>';
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo "<tr><td>" . htmlspecialchars($row["ContactName"]) . "</td></tr>";
+    }
+} else {
+    echo "<tr><td>0 results</td></tr>";
+}
+echo '</tbody></table></div>';
+
 
         // Požiadavka 06
         echo "<h1>požiadavka 06</h1>";
