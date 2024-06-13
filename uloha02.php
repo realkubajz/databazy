@@ -11,35 +11,47 @@
         <?php
         require_once "connect.php";
 
-        function execute_query($conn, $sql, $header) {
-            $result = mysqli_query($conn, $sql);
-            if (!$result) {
-                echo "Error: " . mysqli_error($conn) . "<br>";
-                return;
-            }
+        function execute_query($conn, $sql, $header, $params = null, $param_types = "") {
+            // Pripraviť dotaz
+            if ($stmt = mysqli_prepare($conn, $sql)) {
+                if ($params && $param_types) {
+                    // Naviazať parametre
+                    mysqli_stmt_bind_param($stmt, $param_types, ...$params);
+                }
+                // Vykonať dotaz
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                if (!$result) {
+                    echo "Error: " . mysqli_error($conn) . "<br>";
+                    return;
+                }
 
-            echo '<div class="table-container">';
-            echo "<h2>$header</h2>";
-            if (mysqli_num_rows($result) > 0) {
-                echo "<table>";
-                echo "<thead><tr>";
-                $fields = mysqli_fetch_fields($result);
-                foreach ($fields as $field) {
-                    echo "<th>" . $field->name . "</th>";
-                }
-                echo "</tr></thead><tbody>";
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<tr>";
-                    foreach ($row as $value) {
-                        echo "<td>" . $value . "</td>";
+                echo '<div class="table-container">';
+                echo "<h2>$header</h2>";
+                if (mysqli_num_rows($result) > 0) {
+                    echo "<table>";
+                    echo "<thead><tr>";
+                    $fields = mysqli_fetch_fields($result);
+                    foreach ($fields as $field) {
+                        echo "<th>" . $field->name . "</th>";
                     }
-                    echo "</tr>";
+                    echo "</tr></thead><tbody>";
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<tr>";
+                        foreach ($row as $value) {
+                            echo "<td>" . $value . "</td>";
+                        }
+                        echo "</tr>";
+                    }
+                    echo "</tbody></table>";
+                } else {
+                    echo "<p>No results found.</p>";
                 }
-                echo "</tbody></table>";
+                echo '</div>';
+                mysqli_stmt_close($stmt);
             } else {
-                echo "<p>No results found.</p>";
+                echo "Chyba pri príprave dotazu: " . mysqli_error($conn);
             }
-            echo '</div>';
         }
 
         // Požiadavka 01
@@ -76,12 +88,25 @@
         execute_query($conn, $sql, "Počet zamestnancov a zákazníkov z každého mesta");
 
         // Požiadavka 05
-        echo "<h1>požiadavka 05</h1>";
-        $sql = "SELECT o.OrderID, e.FirstName, e.LastName
-                FROM orders o
-                INNER JOIN employees e ON o.EmployeeID = e.EmployeeID
-                WHERE o.ShippedDate > '1996-12-31'";
-        execute_query($conn, $sql, "ID objednávok a súvisiace mená zamestnancov pre objednávky, ktoré boli odoslané po 1996-12-31");
+        echo "<h1 id='poziadavka05'>požiadavka 05</h1>";
+
+        echo '<form method="post" action="#poziadavka05">
+        <label for="shippedDate">Zadajte dátum odoslania:</label>
+        <input type="date" id="shippedDate" name="shippedDate">
+        <input type="submit" value="Odoslať">
+      </form>';
+
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['shippedDate'])) {
+            // Získajte dátum od používateľa
+            $shippedDate = $_POST['shippedDate'];
+
+            // Pripravte a vykonajte SQL dotaz
+            $sql = "SELECT o.OrderID, e.FirstName, e.LastName
+                    FROM orders o
+                    INNER JOIN employees e ON o.EmployeeID = e.EmployeeID
+                    WHERE o.ShippedDate > ?";
+            execute_query($conn, $sql, "ID objednávok a súvisiace mená zamestnancov pre objednávky, ktoré boli odoslané po dátume", [$shippedDate], "s");
+        }
 
         // Požiadavka 06
         echo "<h1>požiadavka 06</h1>";
